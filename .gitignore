@@ -144,5 +144,5 @@ dist
 # End of https://www.toptal.com/developers/gitignore/api/node
 
 # 그 외 뺄것들
-packge-lock.json
-packge.json
+package-lock.json
+package.json
