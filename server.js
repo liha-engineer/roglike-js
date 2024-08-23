@@ -2,28 +2,48 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import readlineSync from 'readline-sync';
 import {startGame} from "./game.js";
+import {delay} from "./game.js";
 
 // 로비 화면을 출력하는 함수
-export function displayLobby() {
+export async function displayLobby() {
     console.clear();
 
     // 타이틀 텍스트
-    console.log(
-        chalk.cyan(
-            figlet.textSync('MU!', {
-                font: 'Larry 3D',
+    // console.log(
+    //     chalk.cyan(
+    //         figlet.textSync('MUGEUNBON', {
+    //             font: 'Elite',
+    //             horizontalLayout: 'fitted',
+    //             verticalLayout: 'fitted',
+    // //         })
+    //     )
+    // );
+
+    // 움직이는 타이틀 텍스트
+
+    async function movingText (text, textColor, sec) {
+        let titleText = "";
+        for (let i = 0; i < text.length; i++) {
+            console.clear();
+            titleText = text.slice(text.length-i-1, text.length)
+            console.log(textColor(figlet.textSync(titleText, {
+                font: 'Elite',
                 horizontalLayout: 'fitted',
                 verticalLayout: 'fitted',
-            })
-        )
-    );
+            })));
+
+            await delay(sec);
+        }
+    }
+
+    await movingText("MUGEUNBON", chalk.cyan, 0.5);
 
     // 상단 경계선
     const line = chalk.magentaBright('='.repeat(50));
     console.log(line);
 
     // 게임 이름
-    console.log(chalk.yellowBright.bold('주화입마의 세계로 떠나는 무근본 핵앤슬래시'));
+    console.log(chalk.yellowBright.bold('주화입마의 세계로 떠나는 무근본 몹 패기'));
 
     // 설명 텍스트
     console.log(chalk.green('아래에서 선택해주시게'));
@@ -74,9 +94,9 @@ export function handleUserInput() {
 }
 
 // 게임 시작 함수
-function start() {
-    displayLobby();
-    handleUserInput();
+export async function start() {
+    await displayLobby();
+    await handleUserInput();
 }
 
 // 게임 실행
