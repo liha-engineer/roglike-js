@@ -8,8 +8,17 @@ class Character {
     this.name = name;
     this.hp = hp;
     this.atk = atk;
+    
+    this.dfsProb = 0.6;
+    this.doubleatkProb = 0.4;
+    this.runProb = 0.5;
+    this.healProb = 0.3;
+
     this.maxatk = Math.round(atk * 1.4);
     this.dfs = Math.round(atk * 0.4);
+    this.healPt = Math.round(this.hp * (0.2));
+    this.jhimPt = Math.round(this.hp * (0.13));
+
   }
 
   // hp와 atk()가 공통이니 뽑는것도?
@@ -32,6 +41,14 @@ class Character {
     this.hp = this.hp - target.atk + this.dfs;
   }
 
+  heal (target) {
+    target.hp += target.healPt;
+  }
+
+  jhim (target) {
+    target.hp -= target.jhimPt;
+  }
+
 }
 
 class Player extends Character {
@@ -46,10 +63,10 @@ function displayStatus(stage, player, monster) {
   console.log(
     chalk.cyanBright(`| Stage: ${stage} `) +
     chalk.blueBright(
-      `| 플레이어 정보: HP: ${player.hp} ATK: ${player.atk} `,
+      `| ${player.name} : 체력: ${player.hp} 내공: ${player.atk} `,
     ) +
     chalk.redBright(
-      `| 몬스터 정보: HP: ${monster.hp} ATK: ${monster.atk} |`,
+      `| ${monster.name}: 체력: ${monster.hp} 내공: ${monster.atk} |`,
     ),
   );
   console.log(chalk.magentaBright(`======================\n`));
@@ -57,7 +74,6 @@ function displayStatus(stage, player, monster) {
 
 function delay(sec) {
   return new Promise(resolve => setTimeout(resolve, sec * 1000))
-  // 뭔진 모르겠는데 딜레이 주는 함수라고 민규님이 알려주심
 }
 
 
@@ -76,100 +92,99 @@ const battle = async (stage, player, monster) => {
     logs.push(chalk.green(`\n`));
     logs.forEach((log) => console.log(log));
 
+    if (monster.hp < 1) {break;}
+    if (player.hp < 1) {break;}
+
     console.log(
       chalk.green(
-        `\n{1: 공격한다, 2: 방어한다(60%)  3: 연속공격(40%)  4: 도망간다}`,
+        `\n 
+            1:   : 기본 공격 
+            2: 천산갑   : ${player.dfsProb * 100} 확률로 방어
+            3: 주화입마 : ${player.doubleatkProb * 100} 확률로 2타
+            4: 운기조식 : ${player.healProb * 100} 확률로 회복
+            5: 삼십육계 : ${player.runProb * 100} 확률로 도망
+            `,
       ),
     );
     const choice = readlineSync.question('당신의 선택은? ');
 
     // 플레이어의 선택에 따라 다음 행동 처리
     logs.push(chalk.gray(`---------- 선택 완료 ----------`));
-    logs.push(chalk.magenta(`${choice} 번을 선택하셨습니다.`));
+    logs.push(chalk.magenta(`${choice} 번을 선택했구려`));
     logs.push(chalk.gray(`---------- ${turncnt} 번째 턴 ----------`));
 
     switch (choice) {
       case '1':
         player.attack(monster);
-        logs.push(chalk.green(`${monster.name}에게 ${player.atk} 대미지!`));
-        logs.push(chalk.yellow(`${monster.name}의 HP가 ${monster.hp} 남았습니다.`))
+        logs.push(chalk.green(`${monster.name}에게 ${player.atk} 타격!`));
+        logs.push(chalk.yellow(`${monster.name}의 체력이 ${monster.hp} 남았소.`))
         monster.attack(player);
-        logs.push(chalk.redBright(`${player.name}에게 ${monster.atk} 대미지!`));
-        logs.push(chalk.yellow(`${player.name}의 HP가 ${player.hp} 남았습니다.`))
+        logs.push(chalk.redBright(`${player.name}에게 ${monster.atk} 타격!`));
+        logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소`))
         break;
 
       case '2':
-        if (luk >= 0.4) {
-          logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 디펜스!"));
+        if (luk >= player.dfsProb) {
+          logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 천산갑!"));
           player.defense(monster);
-          logs.push(chalk.redBright(`${player.name}에게 ` + (monster.atk - player.dfs)  + ` 대미지!`)); 
-          logs.push(chalk.yellow(`${player.name}의 HP가 ${player.hp} 남았습니다.`))
+          logs.push(chalk.redBright(`${player.name}에게 ` + (monster.atk - player.dfs)  + ` 타격!`)); 
+          logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
         } else {
-          logs.push(chalk.grey("방어에 실패했다!"));
+          logs.push(chalk.grey("천산갑에 실패!"));
           monster.attack(player);
-          logs.push(chalk.redBright(`${player.name}에게 ${monster.atk} 대미지!`));
-          logs.push(chalk.yellow(`${player.name}의 HP가 ${player.hp} 남았습니다.`))
-
+          logs.push(chalk.redBright(`${player.name}에게 ${monster.atk} 타격!`));
+          logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
         }
         break;
 
       case '3':
-        if (luk >= 0.6) {
-          logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 연속공격!"));
+        if (luk >= player.doubleatkProb) {
+          logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 주화입마!"));
           player.doubleAtk(monster);
-          logs.push(chalk.green(`${monster.name}에게 `+ (player.maxatk * 2) + `대미지!`));
-          logs.push(chalk.yellow(`${monster.name}의 HP가 ${monster.hp} 남았습니다.`))
+          logs.push(chalk.green(`${monster.name}에게 `+ (player.maxatk * 2) + `타격!`));
+          logs.push(chalk.yellow(`${monster.name}의 체력이 ${monster.hp} 남았소.`))
         } else {
-          logs.push(chalk.grey("연속공격에 실패하였습니다."));
-          logs.push(chalk.green(`${monster.name}에게 ${player.atk} 대미지!`));
-          player.attack(monster)
-          logs.push(chalk.yellow(`${monster.name}의 HP가 ${monster.hp} 남았습니다.`))
+          logs.push(chalk.grey("어이쿠 손이 미끄러졌네! 주화입마에 실패!"));
+          logs.push(chalk.green(`${monster.name}에게 ${player.atk} 타격!`));
+          player.jhim(player)
+          logs.push(chalk.yellow(`${monster.name}의 체력이 ${monster.hp} 남았소.`))
+          logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
         }
         break;
 
-      case '4':
-        logs.push(chalk.green("도망을 시도합니다"));
+        case '4':
+          if (luk >= player.healProb) {
+            logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 운기조식!"));
+            player.heal(player);
+            logs.push(chalk.blueBright(`${player.name}의 체력 ${player.healPt} 만큼 회복`)); 
+            logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
+          } else {
+            logs.push(chalk.grey("운기조식에 실패! 내상을 입었소!"));
+            monster.jhim(player);
+            logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
+          }
+          break;
+
+      case '5':
+        logs.push(chalk.green("삼십육계를 시도하오"));
         if (luk >= 0.5) {
-          logs.push(chalk.grey(Math.round(luk * 100), "% 확률로 도망쳤습니다! 5초 뒤 로비로 이동합니다"));
-          delay(5);
+          console.log(chalk.grey(Math.round(luk * 100), "% 확률로 성공! 2초 뒤 입구로 이동하오"));
+          await delay(2);
           displayLobby();
           handleUserInput();
         } else {
-          logs.push(chalk.grey(Math.round(luk * 100), "% 확률로 도망에 실패했습니다."));
-          battle();
+          logs.push(chalk.grey(Math.round(luk * 100), "% 확률로 실패! 적에게 발각!"));
+          monster.attack(player);
+          logs.push(chalk.redBright(`${player.name}에게 ${monster.atk} 타격!`));
+          logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
+          await battle();
         }
         break;
 
       default:
-        logs.push(chalk.red('올바른 번호를 선택해주세요.'));
+        logs.push(chalk.red('올바른 번호를 선택해주시오'));
         break;
       
-    }
-
-    if (monster.hp <= 0) {
-      logs.forEach((log) => console.log(log));
-      logs.push(chalk.cyan("몬스터를 물리쳤습니다!!"))
-      // 플레이어 스탯업
-      player.hp = 110 + Math.round(stage * 25);
-      player.atk = 10 + Math.round(stage * 7.5);
-      delay(5);
-      break;
-    }
-
-    if (player.hp <= 0) {
-      logs.forEach((log) => console.log(log));
-      logs.push(chalk.red('HP가 0이 되었습니다.'));
-      logs.push(chalk.grey('========== GAME OVER =========='));
-      delay(5);
-      break;
-    }
-
-
-    if (stage === 10 && monster.hp <= 0) {
-      logs.forEach((log) => console.log(log));
-      logs.push(chalk.cyan("========== ALL STAGE CLEAR =========="));
-      delay(5);
-      break;
     }
 
   }
@@ -178,19 +193,87 @@ const battle = async (stage, player, monster) => {
 
 export async function startGame() {
   console.clear();
-  const player = new Player("플레이어", 110, 10);
-  let stage = 1;
+  
+  console.log(chalk.grey(`\n======================= 서 두 ======================\n`));
+  console.log(chalk.grey(`무림의 어느 민가에서 며칠만에 깨어난 당신`));
+  await delay(1);
+  console.log(chalk.grey(`강에 버려진 당신을 아들이 발견했다는 아낙의 말에`));
+  await delay(1);
+  console.log(chalk.grey(`당신과 함께 떠내려왔다는 보따리를 급히 열어본다`));
+  await delay(1);
+  console.log(chalk.grey(`그 곳에는 물에 젖지 않은 서책 한 권이 있었고`));
+  await delay(1);
+  console.log(chalk.grey(`책을 펼쳐본 당신은 알 수 없는 기운을 느끼는데...`));
+  await delay(1);
+  console.log(chalk.grey(`\n=====================================================\n`));
+  const playerName = readlineSync.question(chalk.grey(`이름을 알려주시겠소?(영어로) `));
 
-  while (stage < 10) {
-    const monster = new Monster("몬스터", 50 + ((stage - 1) * 20), 10 + ((stage - 1) * 10));
+  const player = new Player(`${playerName}`, 110, 10);
+  let stage = 1;
+  
+
+  while (stage < 5) {
+    const monster = new Monster("시정잡배", 50 + ((stage - 1) * 20), 10 + ((stage - 1) * 10));
     await battle(stage, player, monster);
 
-    if (stage === 10) {
-      const monster = new Monster ("아브렐슈드", 500, 90);
+    if (stage === 5) {
+      const monster = new Monster("무야호", 200, 50);
       await battle(stage, player, monster);
+      console.log(
+        chalk.cyan(
+            figlet.textSync('MUYAHO!!', {
+                font: 'Henry 3D',
+                horizontalLayout: 'fitted',
+                verticalLayout: 'fitted',
+            })
+        )
+    );
+    }
+    // 스테이지 클리어 및 게임 종료 조건
+
+    if (monster.hp <= 0) {
+      monster.hp = 0;
+      console.log(chalk.cyan(`${monster.name}, 격파하였소!`));
+
+      // 플레이어 스탯업
+      player.hp = 110 + Math.round(stage * 25);
+      player.atk = 10 + Math.round(stage * 7.5);
+      await delay(2);
     }
 
-    // 스테이지 클리어 및 게임 종료 조건
+    if (player.hp <= 0) {
+      
+      console.log(chalk.red('내공이 다 닳고 말았소......'));
+      console.log(
+        chalk.cyan(
+            figlet.textSync('GAME OVER', {
+                font: 'Larry 3D',
+                horizontalLayout: 'fitted',
+                verticalLayout: 'fitted',
+            })
+        )
+    );
+      await delay(2);
+    }
+
+
+    if (stage === 10 && monster.hp <= 0) {
+      console.log(chalk.cyan("========== ALL STAGE CLEAR =========="));
+      readlineSync.keyIn(`\n 스페이스 바를 눌러주시오 `)
+      console.log(chalk.cyan("========== 입구로 돌아가오 =========="));
+      console.log(
+        chalk.cyan(
+            figlet.textSync('END', {
+                font: 'Ogre',
+                horizontalLayout: 'fitted',
+                verticalLayout: 'fitted',
+            })
+        )
+    );
+      await delay(2);
+      displayLobby();
+      handleUserInput();
+    }
 
     stage++;
   }
