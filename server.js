@@ -1,11 +1,26 @@
 import chalk from 'chalk';
 import figlet from 'figlet';
 import readlineSync from 'readline-sync';
-import {startGame} from "./game.js";
-import {delay} from "./game.js";
+import { startGame } from "./game.js";
+import { delay } from "./game.js";
+
+export async function movingText(text, fontStyle, textColor, sec) {
+    let titleText = "";
+    for (let i = 0; i < text.length; i++) {
+        console.clear();
+        titleText = text.slice(text.length - i - 1, text.length)
+        console.log(textColor(figlet.textSync(titleText, {
+            font: fontStyle,
+            horizontalLayout: 'fitted',
+            verticalLayout: 'fitted',
+        })));
+
+        await delay(sec);
+    }
+}
 
 // 로비 화면을 출력하는 함수
-export async function displayLobby() {
+async function displayLobby() {
     console.clear();
 
     // 타이틀 텍스트
@@ -21,29 +36,14 @@ export async function displayLobby() {
 
     // 움직이는 타이틀 텍스트
 
-    async function movingText (text, textColor, sec) {
-        let titleText = "";
-        for (let i = 0; i < text.length; i++) {
-            console.clear();
-            titleText = text.slice(text.length-i-1, text.length)
-            console.log(textColor(figlet.textSync(titleText, {
-                font: 'Elite',
-                horizontalLayout: 'fitted',
-                verticalLayout: 'fitted',
-            })));
-
-            await delay(sec);
-        }
-    }
-
-    await movingText("MUGEUNBON", chalk.cyan, 0.5);
+    await movingText("MUGEUNBON", "Elite", chalk.cyan, 0.5);
 
     // 상단 경계선
     const line = chalk.magentaBright('='.repeat(50));
     console.log(line);
 
     // 게임 이름
-    console.log(chalk.yellowBright.bold('주화입마의 세계로 떠나는 무근본 몹 패기'));
+    console.log(chalk.yellowBright.bold('주화입마의 세계로 떠나는 무근본 몹 척살기'));
 
     // 설명 텍스트
     console.log(chalk.green('아래에서 선택해주시게'));
@@ -63,24 +63,24 @@ export async function displayLobby() {
 }
 
 // 유저 입력을 받아 처리하는 함수
-export function handleUserInput() {
+async function handleUserInput() {
     const choice = readlineSync.question('입력: ');
 
     switch (choice) {
         case '1':
             console.log(chalk.green('게임을 시작하오'));
             // 여기에서 새로운 게임 시작 로직을 구현
-            startGame();
+            await startGame();
             break;
         case '2':
             console.log(chalk.yellow('구현 준비중이오... 내공이 부족하오'));
             // 업적 확인하기 로직을 구현
-            handleUserInput();
+            await handleUserInput();
             break;
         case '3':
             console.log(chalk.blue('구현 준비중이오... 내공이 부족하오'));
             // 옵션 메뉴 로직을 구현
-            handleUserInput();
+            await handleUserInput();
             break;
         case '4':
             console.log(chalk.red('사바세계로 돌아가오'));
@@ -89,7 +89,7 @@ export function handleUserInput() {
             break;
         default:
             console.log(chalk.red('올바른 선택을 하시게'));
-            handleUserInput(); // 유효하지 않은 입력일 경우 다시 입력 받음
+            await handleUserInput(); // 유효하지 않은 입력일 경우 다시 입력 받음
     }
 }
 
@@ -100,4 +100,4 @@ export async function start() {
 }
 
 // 게임 실행
-start();
+await start();
