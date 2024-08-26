@@ -9,6 +9,7 @@
 
 ## 🛠️기술 스택
 * Javascript
+* Node.js
 
 ## 💡구현 기능
 * 일반 공격
