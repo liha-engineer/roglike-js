@@ -36,7 +36,7 @@ async function displayLobby() {
 
     // 움직이는 타이틀 텍스트
 
-    await movingText("MUGEUNBON", "Elite", chalk.greenBright, 0.5);
+    await movingText("MUGEUNBON", "Elite", chalk.cyan, 0.5);
 
     // 상단 경계선
     const line = chalk.magentaBright('='.repeat(50));
