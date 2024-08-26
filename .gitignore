@@ -144,6 +144,6 @@ dist
 # End of https://www.toptal.com/developers/gitignore/api/node
 
 # 그 외 뺄것들
-package-lock.json
+# package-lock은 협업때는 꼭 커밋해줘야 한다
 package.json
 .prettierrc
