@@ -142,9 +142,9 @@ const battle = async (stage, player, monster) => {
           logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 천산갑!"));
           player.defense(monster);
           logs.push(
-            chalk.blueBright(`${monster.name}의 공격을 방어!\n`) + 
+            chalk.blueBright(`${monster.name}의 공격을 방어!\n`) +
             chalk.redBright(
-            `${player.name}에게 ` + (monster.atk - player.defensePt) + ` 타격!`));
+              `${player.name}에게 ` + (monster.atk - player.defensePt) + ` 타격!`));
           logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
         } else {
           logs.push(chalk.grey("천산갑에 실패!"));
@@ -158,7 +158,7 @@ const battle = async (stage, player, monster) => {
       case '3':
         if (luk >= 1 - player.doubleatkProb) {
           logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 초풍신권!"));
-          logs.push(chalk.magenta(`내공이 온 몸에 넘쳐흘러 적에게 타격을 입지 않소`));
+          logs.push(chalk.blue(`내공이 온 몸에 넘쳐흘러 적에게 타격을 입지 않소`));
           player.doubleAtk(monster);
           logs.push(chalk.green(`${monster.name}에게 ${(player.maxatk * 2)} 타격!`));
           logs.push(chalk.yellow(`${monster.name}의 체력이 ${monster.hp} 남았소.`))
@@ -228,7 +228,9 @@ export async function startGame() {
   await delay(0.5);
   console.log(chalk.grey(`당신과 함께 떠내려왔다는 보따리를 급히 열어본다`));
   await delay(0.5);
-  console.log(chalk.grey(`그 곳에는 물에 젖지 않은 서책 한 권이 있었고`));
+  console.log(chalk.grey("그 곳에는 ") +
+    chalk.blue("물에 젖지 않은 서책 ") +
+    chalk.grey("한 권이 있었고"));
   await delay(0.5);
   console.log(chalk.grey(`책을 펼쳐본 당신은 알 수 없는 기운을 느끼는데...`));
   await delay(0.5);
@@ -250,28 +252,31 @@ export async function startGame() {
 
     if (stage === 5 && monster.name === "시정잡배" && monster.hp <= 0) {
 
-      console.log(chalk.cyan(`${monster.name}, 격파하였소! `));
-      await delay(3);
+      console.log(chalk.cyan(`${monster.name}, 격파하였소!\n `));
+      await delay(2);
       console.log(chalk.yellowBright(`...어?\n`));
       await delay(1);
 
+      console.clear();
+      console.log(`\n\n\n\n`);
       // 큭x6 띄우기
       const keuk = chalk.redBright(`큭 `.repeat(6));
       console.log(keuk);
-      await delay(1);
+      await delay(2);
 
       console.log(
-        chalk.grey(
-          `\n기분 나쁜 웃음 소리와 함께 
+        chalk.grey(`
+        \n기분 나쁜 웃음 소리와 함께 
         \n섬뜩한 인기척이 느껴진다
-        \n정신을 다잡고 운기조식을...!!\n`
-        ));
-      await delay(3);
+        \n정신을 다잡고 운기조식을...!!\n
+        `));
+      await delay(2);
 
+      //중간보스전 스탯업 - 운기조식의 효과
       player.hp += 200;
       player.atk += 20;
 
-      await movingText(`\n \n \nR O J I N`, "Pagga", chalk.magentaBright, 0.2);
+      await movingText(`\n\n\n ROJIN`, "Henry 3D", chalk.magentaBright, 0.2);
       await delay(1);
 
       monster = new Monster("사파의 낭인", 200 + (stage * 15), 50 + (stage * 5));
@@ -279,45 +284,48 @@ export async function startGame() {
 
     } else if (stage === 10 && monster.name === "시정잡배" && monster.hp <= 0) {
 
-      console.log(
-        chalk.cyan(`${monster.name}, 격파하였 `) +
-        chalk.yellowBright(`...을 리가 없지 그래\n`));
-      await delay(3);
+      console.log(chalk.cyan(`${monster.name}, 격파하였소! `));
+      await delay(2);
+      console.log(chalk.red(`\n. . . 그럴 리 없는 살기가 풍긴다.\n`));
 
       console.log(
-        chalk.blueBright(`\n\n이젠 나도 당하고만 있을 수 없어\n\n`)
+        chalk.blue(`상대가 치고 들어오기 전에 손을 써야 한다. . . !\n\n`)
       )
       await delay(3);
 
       console.clear();
-
       console.log(
-        chalk.greenBright(`\n\n${player.name}은 팔맥교회혈을 점혈합니다\n\n`)
+        chalk.green(
+          `\n\n
+          ${player.name}은 팔맥교회혈을 점혈합니다
+          단전 깊은 곳에서 알 수 없는 소용돌이가 몰아칩니다
+          \n\n`)
       );
-
       await delay(3);
 
-      player.hp += (stage * 20);
+      // 혈자리 점혈로 보스전 스탯업
+      player.hp += (stage * 30);
       player.atk += (stage * 10);
 
 
-      // 깔x6 띄우기
+      // 깔x8 띄우기
       const kkal = chalk.redBright(`깔 `.repeat(8));
       console.log(kkal);
       await delay(3);
 
       console.log(
-        chalk.red(
-          `\n 노력은 가상하다만,
+        chalk.red(`
+          \n 노력은 가상하다만,
           \n 명계로 가는 시간만 단축할 뿐이다
-          \n ${playerName}, 너의 이름을 모를 것이라 생각했나?
+          \n ${playerName}, 무림이 너를 모를 것이라 생각했나?
           `));
       await delay(3);
-
-      await movingText(`\n \n \nP Y E - I N`, "Pagga", chalk.redBright, 0.3);
+      
+      console.log(`\n\n\n`)
+      await movingText(`\n\n\n PYE-IN`, "Henry 3D", chalk.redBright, 0.3);
       await delay(1);
 
-      monster = new Monster("쓰러져가는 폐인", 300 + (stage * 10), 100 + (stage * 10));
+      monster = new Monster("쓰러져가는 폐인", 250 + (stage * 19), 100 + (stage * 5));
       await battle(stage, player, monster);
 
     }
@@ -332,12 +340,10 @@ export async function startGame() {
     }
 
     // 스테이지 클리어 및 게임 종료 조건
-
-
     // 플레이어 사망
     if (player.hp <= 0) {
       console.log(
-        chalk.grey(`체력이 모두 소진되고 말았다......\n`) + 
+        chalk.grey(`체력이 모두 소진되고 말았다......\n`) +
         chalk.red(`${player.name}은 쓰러졌다. . . !\n`) +
         chalk.grey(`
           \n아득해지는 감각 너머로 
@@ -349,7 +355,7 @@ export async function startGame() {
       console.log(
         chalk.gray(
           figlet.textSync('GAME OVER', {
-            font: 'Henry 3D',
+            font: 'Pagga',
             horizontalLayout: 'fitted',
             verticalLayout: 'fitted',
           })
@@ -366,9 +372,9 @@ export async function startGame() {
 
     // 10 스테이지까지 올클리어
     if (stage === 10 && monster.hp <= 0) {
-      console.log(chalk.cyan("========== ALL STAGE CLEAR =========="));
+      console.log(chalk.blue("========== ALL STAGE CLEAR =========="));
       console.log(
-        chalk.cyan(
+        chalk.white(
           figlet.textSync('CLEAR', {
             font: 'Henry 3D',
             horizontalLayout: 'fitted',
@@ -376,7 +382,7 @@ export async function startGame() {
           })
         )
       );
-      console.log(chalk.cyan("\n========== 입구로 돌아가오 =========="));
+      console.log(chalk.blue("========== 입구로 돌아가오 =========="));
       readlineSync.keyIn(`\n 엔터 말고 아무 키나 눌러주시오  `);
       await delay(3);
       await start();
