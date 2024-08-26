@@ -16,7 +16,7 @@ class Character {
     this.healProb = 0.3;
 
     this.maxatk = Math.round(atk * 1.4);
-    this.dfs = Math.round(atk * 0.4);
+    this.dfs = Math.round(atk * 0.3);
     this.healPt = Math.round(this.hp * (0.2));
     this.jhimPt = Math.round(this.hp * (0.1));
 
@@ -335,10 +335,9 @@ export async function startGame() {
       console.log(
         chalk.red(`${player.name}은 쓰러졌다......\n`) +
         chalk.grey(`
-          아득해지는 감각 너머로 \n
-          ${monster.name}의 비웃음 소리가 \n
+          \n아득해지는 감각 너머로 
+          ${monster.name}의 비웃음 소리가
           귓전에 소용돌이 친다......`)
-
       );
       await delay(1);
 
