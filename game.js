@@ -10,13 +10,13 @@ class Character {
     this.hp = hp;
     this.atk = atk;
 
-    this.dfsProb = 0.6;
+    this.defenseProb = 0.6;
     this.doubleatkProb = 0.4;
     this.runProb = 0.5;
     this.healProb = 0.3;
 
     this.maxatk = Math.round(atk * 1.4);
-    this.dfs = Math.round(atk * 0.3);
+    this.defensePt = Math.round(atk * 0.3);
     this.healPt = Math.round(this.hp * (0.2));
     this.jhimPt = Math.round(this.hp * (0.1));
 
@@ -39,7 +39,7 @@ class Character {
   }
 
   defense(target) {
-    this.hp = this.hp - target.atk + this.dfs;
+    this.hp = this.hp - target.atk + this.defensePt;
   }
 
   heal(target) {
@@ -109,7 +109,7 @@ const battle = async (stage, player, monster) => {
       chalk.green(
         `\n 
             1. 선풍각   : 기본 공격 
-            2. 천산갑   : ${player.dfsProb * 100}% 확률로 방어
+            2. 천산갑   : ${player.defenseProb * 100}% 확률로 방어
             3. 초풍신권 : ${player.doubleatkProb * 100}% 확률로 2타
             4. 운기조식 : ${player.healProb * 100}% 확률로 회복
             5. 삼십육계 : ${player.runProb * 100}% 확률로 도망
@@ -138,10 +138,13 @@ const battle = async (stage, player, monster) => {
 
       //방어(천산갑)
       case '2':
-        if (luk >= 1 - player.dfsProb) {
+        if (luk >= 1 - player.defenseProb) {
           logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 천산갑!"));
           player.defense(monster);
-          logs.push(chalk.redBright(`${monster.name}의 공격을 방어! ${player.name}에게 ` + (monster.atk - player.dfs) + ` 타격!`));
+          logs.push(
+            chalk.blueBright(`${monster.name}의 공격을 방어!\n`) + 
+            chalk.redBright(
+            `${player.name}에게 ` + (monster.atk - player.defensePt) + ` 타격!`));
           logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
         } else {
           logs.push(chalk.grey("천산갑에 실패!"));
@@ -282,14 +285,14 @@ export async function startGame() {
       await delay(3);
 
       console.log(
-        chalk.magentaBright(`\n이젠 나도 당하고만 있을 수 없어\n`)
+        chalk.blueBright(`\n\n이젠 나도 당하고만 있을 수 없어\n\n`)
       )
       await delay(3);
 
       console.clear();
 
       console.log(
-        chalk.greenBright(`${player.name}은 팔맥교회혈을 점혈합니다\n\n`)
+        chalk.greenBright(`\n\n${player.name}은 팔맥교회혈을 점혈합니다\n\n`)
       );
 
       await delay(3);
@@ -299,15 +302,16 @@ export async function startGame() {
 
 
       // 깔x6 띄우기
-      const kkal = chalk.redBright(`깔 `.repeat(6));
+      const kkal = chalk.redBright(`깔 `.repeat(8));
       console.log(kkal);
       await delay(3);
 
       console.log(
         chalk.red(
           `\n 노력은 가상하다만,
-            \n 명계로 가는 시간만 단축 할 뿐
-        `));
+          \n 명계로 가는 시간만 단축할 뿐이다
+          \n ${playerName}, 너의 이름을 모를 것이라 생각했나?
+          `));
       await delay(3);
 
       await movingText(`\n \n \nP Y E - I N`, "Pagga", chalk.redBright, 0.3);
@@ -333,18 +337,19 @@ export async function startGame() {
     // 플레이어 사망
     if (player.hp <= 0) {
       console.log(
-        chalk.red(`${player.name}은 쓰러졌다......\n`) +
+        chalk.grey(`체력이 모두 소진되고 말았다......\n`) + 
+        chalk.red(`${player.name}은 쓰러졌다. . . !\n`) +
         chalk.grey(`
           \n아득해지는 감각 너머로 
-          ${monster.name}의 비웃음 소리가
-          귓전에 소용돌이 친다......`)
+          \n${monster.name}의 비웃음 소리가
+          \n귓전에 소용돌이 친다......\n\n`)
       );
       await delay(1);
 
       console.log(
         chalk.gray(
           figlet.textSync('GAME OVER', {
-            font: 'Pagga',
+            font: 'Henry 3D',
             horizontalLayout: 'fitted',
             verticalLayout: 'fitted',
           })
@@ -353,7 +358,7 @@ export async function startGame() {
       await delay(1);
 
       console.log(chalk.cyan("\n========== 입구로 돌아가오 =========="));
-      readlineSync.keyIn(`스페이스 바를 눌러주시오 `);
+      readlineSync.keyIn(`\n엔터 말고 아무 키나 눌러주시오 `);
       await delay(3);
       await start();
 
@@ -371,8 +376,8 @@ export async function startGame() {
           })
         )
       );
-      console.log(chalk.cyan("========== 입구로 돌아가오 =========="));
-      readlineSync.keyIn(`\n 스페이스 바를 눌러주시오 `);
+      console.log(chalk.cyan("\n========== 입구로 돌아가오 =========="));
+      readlineSync.keyIn(`\n 엔터 말고 아무 키나 눌러주시오  `);
       await delay(3);
       await start();
 
