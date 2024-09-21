@@ -22,12 +22,6 @@ class Character {
 
   }
 
-  // hp와 atk()가 공통이니 뽑는것도?
-  // this.을 붙여서 상태처럼 쓸 필요는 없다!
-  // 그냥 데미지를 리턴하고 그 값을 hp에서 빼는 것도 가능!
-  // 지금같은 구현이라면 바깥에서 데미지를 카운트해주는 무언가가 필요할것!
-  // 함수 한개로 음수면 데미지, 양수면 힐로 구현할 수 있을 것! 
-
   attack(target) {
     const damage = this.atk;
     target.hp -= damage;
@@ -39,14 +33,13 @@ class Character {
   }
 
   defense(target) {
-    this.hp = this.hp - target.atk + this.defensePt;
+    this.hp = this.hp - target.atk + target.defensePt;
   }
 
   heal(target) {
     target.hp += target.healPt;
   }
 
-  // 주화입마  - 운기조식 실패 시 내상입는 용도. 체력의 10% 까임
   jhim(target) {
     target.hp -= target.jhimPt;
   }
@@ -60,15 +53,12 @@ class Player extends Character {
 class Monster extends Character {
 }
 
-export function delay(sec) {
+export const delay = async (sec) => {
   return new Promise(resolve => setTimeout(resolve, sec * 1000))
-  // await가 붙는건 기다려준다 
-  // await가 붙으려면 async가 필요하고
-  // 비동기를 동기적인것 처럼 쓰려고! <- 가 목적
 }
 
-function displayStatus(stage, player, monster) {
-  console.log(chalk.magentaBright(`\n======== Current Status =======`));
+const displayStatus = (stage, player, monster) => {
+  console.log(chalk.magentaBright(`\n============= Current Status =============`));
   console.log(
     chalk.cyanBright(` | Stage: ${stage} \n`),
     chalk.blueBright(
@@ -78,7 +68,7 @@ function displayStatus(stage, player, monster) {
       `| [${monster.name}] 체력: ${monster.hp} 내공: ${monster.atk} `,
     )
   );
-  console.log(chalk.magentaBright(`===============================\n`));
+  console.log(chalk.magentaBright(`==========================================\n`));
 }
 
 // const battleMenu = async (player, monster, choice) => {
@@ -89,8 +79,6 @@ const battle = async (stage, player, monster) => {
   let turncnt = 0;
   logs.push(chalk.gray(`---------- 신규 스테이지 시작 ----------`));
 
-  // 5, 10 스테이지를 특별보스로 구성하고 싶어요!
-  // 그러면 while문을 더 써야할것 같은데... -> 이게 아니다!
 
   while (stage <= 10 && player.hp > 0) {
     let luk = Math.random();
@@ -117,16 +105,12 @@ const battle = async (stage, player, monster) => {
       ),
     );
     const choice = readlineSync.question('당신의 선택은? ');
-
-    // 이름이 깨지는건 인코딩 설정의 문제 -> EUC - KR로 바꿔볼까?
-
-    // 플레이어의 선택에 따라 다음 행동 처리
     logs.push(chalk.magenta(`${choice} 번을 선택했구려`));
     logs.push(chalk.gray(`---------- 선택 완료 ----------`));
 
     switch (choice) {
 
-      //일반공격(선풍각)
+      // 기본공격
       case '1':
         player.attack(monster);
         logs.push(chalk.green(`${player.name}의 공격! ${monster.name}에게 ${player.atk} 타격!`));
@@ -136,7 +120,8 @@ const battle = async (stage, player, monster) => {
         logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소`))
         break;
 
-      //방어(천산갑)
+
+      // 방어
       case '2':
         if (luk >= 1 - player.defenseProb) {
           logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 천산갑!"));
@@ -154,7 +139,6 @@ const battle = async (stage, player, monster) => {
         }
         break;
 
-      //2타공격(초풍신권)
       case '3':
         if (luk >= 1 - player.doubleatkProb) {
           logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 초풍신권!"));
@@ -174,7 +158,6 @@ const battle = async (stage, player, monster) => {
         }
         break;
 
-      // 회복(운기조식)
       case '4':
         if (luk >= 1 - player.healProb) {
           logs.push(chalk.grey(Math.round(luk * 100), "% 의 확률로 운기조식!"));
@@ -182,7 +165,6 @@ const battle = async (stage, player, monster) => {
           logs.push(chalk.blueBright(`${player.name}의 체력 ${player.healPt} 만큼 회복`));
           logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
         } else {
-          // 회복 실패 시 대미지
           logs.push(chalk.grey("운기조식에 실패! 내상을 입었소!"));
           monster.jhim(player);
           logs.push(chalk.yellow(`${player.name}의 체력이 ${player.hp} 남았소.`))
@@ -195,9 +177,6 @@ const battle = async (stage, player, monster) => {
         if (luk >= 0.5) {
           console.log(chalk.grey(Math.round(luk * 100), "% 확률로 성공! 2초 뒤 입구로 이동하오"));
           await delay(2);
-
-          // start() 함수 호출하여 새 게임 들어갈 때 자꾸 이전 로그가 남아있어서 초기화 시도
-          logs = [];
           await start();
 
         } else {
@@ -212,14 +191,12 @@ const battle = async (stage, player, monster) => {
         logs.push(chalk.red('올바른 번호를 선택해주시오'));
         break;
     }
-
     logs.push(chalk.gray(`---------- ${turncnt} 번째 턴 ----------`));
-
   }
 };
 
 
-export async function startGame() {
+export const startGame = async () => {
   console.clear();
   console.log(chalk.grey(`\n======================= 서 두 ======================\n`));
   console.log(chalk.grey(`무림의 어느 민가에서 며칠만에 깨어난 당신`));
@@ -235,8 +212,8 @@ export async function startGame() {
   console.log(chalk.grey(`책을 펼쳐본 당신은 알 수 없는 기운을 느끼는데...`));
   await delay(0.5);
   console.log(chalk.grey(`\n=====================================================\n`));
-  const playerName = readlineSync.question(chalk.grey(`이름을 알려주시겠소?(영어, 숫자) `));
 
+  const playerName = readlineSync.question(chalk.grey(`이름을 알려주시겠소?(영어, 숫자) `));
   const player = new Player(`${playerName}`, 110, 10);
   let stage = 1;
 
@@ -245,10 +222,6 @@ export async function startGame() {
     // 이 monster가 상단에 한개는 선언되어야 스테이지 클리어/게임 클리어 if구문이 인자를 받을 수 있다.
     let monster = new Monster("시정잡배", 50 + ((stage - 1) * 20), 10 + ((stage - 1) * 10));
     await battle(stage, player, monster);
-
-    // 5, 10단계에서 시정잡배 잡고 나면 깬척하지만 사실 보스를 보게 하고싶다
-    // 해당 단계가 아니라면 그냥 평범하게 스탯업 하는걸로...
-    // 레벨별 스테이지 별도설정 - battle() 이 한번만 호출되도록
 
     if (stage === 5 && monster.name === "시정잡배" && monster.hp <= 0) {
 
@@ -259,7 +232,6 @@ export async function startGame() {
 
       console.clear();
       console.log(`\n\n\n\n`);
-      // 큭x6 띄우기
       const keuk = chalk.redBright(`큭 `.repeat(6));
       console.log(keuk);
       await delay(2);
@@ -272,7 +244,6 @@ export async function startGame() {
         `));
       await delay(2);
 
-      //중간보스전 스탯업 - 운기조식의 효과
       player.hp += 200;
       player.atk += 20;
 
@@ -303,12 +274,9 @@ export async function startGame() {
       );
       await delay(3);
 
-      // 혈자리 점혈로 보스전 스탯업
       player.hp += (stage * 30);
       player.atk += (stage * 10);
 
-
-      // 깔x8 띄우기
       const kkal = chalk.redBright(`깔 `.repeat(8));
       console.log(kkal);
       await delay(3);
@@ -331,16 +299,15 @@ export async function startGame() {
     }
 
     if (monster.hp <= 0) {
-      console.log(chalk.cyan(`${monster.name}, 격파하였소!`));
+      console.log(chalk.cyan(`${monster.name}, 격파하였소!\n`));
 
-      // 플레이어 스탯업
       player.hp = 110 + Math.round(stage * 23);
       player.atk = 10 + Math.round(stage * 7.7);
       await delay(1);
     }
 
     // 스테이지 클리어 및 게임 종료 조건
-    // 플레이어 사망
+
     if (player.hp <= 0) {
       console.log(
         chalk.grey(`체력이 모두 소진되고 말았다......\n`) +
@@ -370,9 +337,8 @@ export async function startGame() {
 
     }
 
-    // 10 스테이지까지 올클리어
     if (stage === 10 && monster.hp <= 0) {
-      console.log(chalk.blue("========== ALL STAGE CLEAR =========="));
+      console.log(chalk.blue("=============== ALL STAGE CLEAR ==============="));
       console.log(
         chalk.white(
           figlet.textSync('CLEAR', {
@@ -382,9 +348,9 @@ export async function startGame() {
           })
         )
       );
-      console.log(chalk.blue("========== 입구로 돌아가오 =========="));
+      console.log(chalk.blue("=============== 입구로 돌아가오 ==============="));
       readlineSync.keyIn(`\n 엔터 말고 아무 키나 눌러주시오  `);
-      await delay(3);
+      await delay(2);
       await start();
 
     }
